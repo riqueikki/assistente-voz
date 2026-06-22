@@ -1,0 +1,170 @@
+"""
+Assistente de Voz em Python
+Autor: Henrique Brandão
+GitHub: github.com/riqueikki
+"""
+
+import speech_recognition as sr
+import pyttsx3
+import webbrowser
+import datetime
+import random
+import sys
+
+
+# ─────────────────────────────────────────
+#  CONFIGURAÇÃO DO ENGINE DE VOZ
+# ─────────────────────────────────────────
+
+engine = pyttsx3.init()
+engine.setProperty("rate", 160)       # Velocidade da fala
+engine.setProperty("volume", 1.0)     # Volume (0.0 a 1.0)
+
+# Tenta usar voz em português (se disponível no sistema)
+voices = engine.getProperty("voices")
+for voice in voices:
+    if "brazil" in voice.name.lower() or "portuguese" in voice.name.lower():
+        engine.setProperty("voice", voice.id)
+        break
+
+
+# ─────────────────────────────────────────
+#  FUNÇÕES PRINCIPAIS
+# ─────────────────────────────────────────
+
+def falar(texto: str) -> None:
+    """Converte texto em fala e imprime no terminal."""
+    print(f"\n🤖 Assistente: {texto}")
+    engine.say(texto)
+    engine.runAndWait()
+
+
+def ouvir() -> str:
+    """Captura áudio do microfone e retorna o texto reconhecido."""
+    reconhecedor = sr.Recognizer()
+    reconhecedor.pause_threshold = 1.0  # Segundos de silêncio para encerrar
+
+    with sr.Microphone() as source:
+        print("\n🎤 Ouvindo... (fale agora)")
+        reconhecedor.adjust_for_ambient_noise(source, duration=0.5)
+        try:
+            audio = reconhecedor.listen(source, timeout=5, phrase_time_limit=8)
+        except sr.WaitTimeoutError:
+            return ""
+
+    try:
+        texto = reconhecedor.recognize_google(audio, language="pt-BR")
+        print(f"👤 Você disse: {texto}")
+        return texto.lower()
+    except sr.UnknownValueError:
+        falar("Não entendi. Pode repetir?")
+        return ""
+    except sr.RequestError:
+        falar("Erro de conexão com o serviço de reconhecimento.")
+        return ""
+
+
+# ─────────────────────────────────────────
+#  BANCO DE RESPOSTAS E AÇÕES
+# ─────────────────────────────────────────
+
+PIADAS = [
+    "Por que o livro de matemática está sempre triste? Porque tem muitos problemas!",
+    "O que o zero disse para o oito? Que cinto bonito!",
+    "Por que o computador foi ao médico? Porque estava com vírus!",
+]
+
+SITES = {
+    "youtube":   "https://www.youtube.com",
+    "google":    "https://www.google.com",
+    "github":    "https://github.com/riqueikki",
+    "whatsapp":  "https://web.whatsapp.com",
+}
+
+
+def obter_hora() -> str:
+    agora = datetime.datetime.now()
+    return agora.strftime("%H horas e %M minutos")
+
+
+def obter_data() -> str:
+    agora = datetime.datetime.now()
+    dias = ["segunda", "terça", "quarta", "quinta", "sexta", "sábado", "domingo"]
+    dia_semana = dias[agora.weekday()]
+    return agora.strftime(f"{dia_semana}, %d de %B de %Y")
+
+
+def processar_comando(comando: str) -> bool:
+    """
+    Processa o comando recebido e executa a ação correspondente.
+    Retorna False quando o usuário pede para encerrar.
+    """
+
+    if not comando:
+        return True
+
+    # Encerrar
+    if any(p in comando for p in ["sair", "encerrar", "fechar", "tchau", "até mais"]):
+        falar("Até mais! Foi um prazer ajudar.")
+        return False
+
+    # Horas
+    elif any(p in comando for p in ["horas", "que horas", "hora"]):
+        falar(f"São {obter_hora()}.")
+
+    # Data
+    elif any(p in comando for p in ["data", "dia", "hoje"]):
+        falar(f"Hoje é {obter_data()}.")
+
+    # Piada
+    elif any(p in comando for p in ["piada", "me divirta", "algo engraçado"]):
+        falar(random.choice(PIADAS))
+
+    # Abrir sites
+    elif "abrir" in comando or "abre" in comando:
+        aberto = False
+        for nome, url in SITES.items():
+            if nome in comando:
+                falar(f"Abrindo {nome}...")
+                webbrowser.open(url)
+                aberto = True
+                break
+        if not aberto:
+            falar("Não sei qual site abrir. Tente: youtube, google, github ou whatsapp.")
+
+    # Quem é você
+    elif any(p in comando for p in ["quem é você", "seu nome", "como te chamo"]):
+        falar("Sou seu assistente de voz criado em Python por Henrique Brandão.")
+
+    # Ajuda
+    elif any(p in comando for p in ["ajuda", "o que você faz", "comandos"]):
+        falar(
+            "Posso fazer várias coisas! Tente me perguntar: "
+            "que horas são, qual a data de hoje, me conta uma piada, "
+            "abrir youtube, ou simplesmente diga sair para encerrar."
+        )
+
+    # Não entendeu
+    else:
+        falar("Ainda não sei fazer isso, mas estou aprendendo!")
+
+    return True
+
+
+# ─────────────────────────────────────────
+#  LOOP PRINCIPAL
+# ─────────────────────────────────────────
+
+def iniciar():
+    falar("Olá! Assistente de voz ativado. Como posso ajudar?")
+
+    ativo = True
+    while ativo:
+        comando = ouvir()
+        ativo = processar_comando(comando)
+
+    sys.exit(0)
+
+
+if __name__ == "__main__":
+    iniciar()

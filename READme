@@ -1,0 +1,75 @@
+#  Assistente de Voz em Python
+
+Assistente de voz simples desenvolvido em Python para iniciantes.
+Reconhece comandos em **português do Brasil** e responde por voz.
+
+**Autor:** Henrique Brandão — [@riqueikki](https://github.com/riqueikki)
+
+---
+
+## ✅ O que ele faz
+
+| Comando (exemplo)         | Ação                          |
+|---------------------------|-------------------------------|
+| "Que horas são?"          | Fala a hora atual             |
+| "Qual a data de hoje?"    | Fala o dia da semana e data   |
+| "Me conta uma piada"      | Conta uma piada aleatória     |
+| "Abrir YouTube"           | Abre o YouTube no navegador   |
+| "Abrir GitHub"            | Abre seu perfil no GitHub     |
+| "O que você faz?"         | Lista os comandos disponíveis |
+| "Sair" / "Tchau"          | Encerra o assistente          |
+
+---
+
+## ⚙️ Instalação
+
+### 1. Clone o repositório
+```bash
+git clone https://github.com/riqueikki/assistente-voz.git
+cd assistente-voz
+```
+
+### 2. Instale as dependências
+```bash
+pip install -r requirements.txt
+```
+
+> **Atenção — PyAudio no Windows:**
+> Se der erro ao instalar `pyaudio`, use:
+> ```bash
+> pip install pipwin
+> pipwin install pyaudio
+> ```
+
+### 3. Execute
+```bash
+python assistente.py
+```
+
+---
+
+## 📋 Pré-requisitos
+
+- Python 3.8+
+- Microfone funcionando
+- Conexão com internet (para reconhecimento de voz via Google)
+
+---
+
+## 🗂️ Estrutura do projeto
+
+```
+assistente-voz/
+├── assistente.py     # Código principal
+├── requirements.txt  # Dependências
+└── README.md         # Este arquivo
+```
+
+---
+
+##  Próximas melhorias (sugestões)
+
+- [ ] Integrar API do OpenWeatherMap para previsão do tempo
+- [ ] Adicionar comandos para tocar música
+- [ ] Criar modo de digitação como fallback ao microfone
+- [ ] Expandir banco de piadas a partir de arquivo `.json`
